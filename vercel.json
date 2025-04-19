@@ -2,10 +2,10 @@
   "version": 2,
   "builds": [
     {
-      "src": "client/package.json",
+      "src": "build.sh",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "client/dist"
       }
     },
     {
@@ -19,15 +19,12 @@
       "dest": "/api/index.js"
     },
     {
-      "src": "/(.*\\.(js|css|ico|png|jpg|jpeg|svg|webp|json))",
+      "src": "/(.*\\.[a-z0-9]{1,})",
       "dest": "/client/dist/$1"
     },
     {
       "src": "/(.*)",
       "dest": "/client/dist/index.html"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }

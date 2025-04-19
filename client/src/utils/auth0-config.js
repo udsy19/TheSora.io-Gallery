@@ -5,5 +5,6 @@ export const auth0Config = {
     redirect_uri: window.location.origin,
     audience: '', // Set this if you have an API identifier configured
     scope: 'openid profile email'
-  }
+  },
+  cacheLocation: 'localstorage'
 };
