@@ -29,10 +29,10 @@
   --color-status-error: #FF3B30;
   --color-status-info: #0084FF;
   
-  --shadow-small: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-large: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-focus: 0 0 0 4px rgba(202, 189, 255, 0.3);
+  --shadow-small: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 6px rgba(0, 0, 0, 0.02);
+  --shadow-medium: 0 3px 8px rgba(0, 0, 0, 0.04), 0 3px 6px rgba(0, 0, 0, 0.02);
+  --shadow-large: 0 8px 16px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.02);
+  --shadow-focus: 0 0 0 3px rgba(202, 189, 255, 0.3);
   
   /* Animation variables */
   --animation-duration-fast: 150ms;
@@ -99,14 +99,16 @@
   --color-status-error: #FF453A;
   --color-status-info: #0A84FF;
   
-  --shadow-small: 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-large: 0 8px 24px rgba(0, 0, 0, 0.6);
-  --shadow-focus: 0 0 0 4px rgba(202, 189, 255, 0.3);
+  --shadow-small: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-medium: 0 3px 8px rgba(0, 0, 0, 0.5), 0 3px 6px rgba(0, 0, 0, 0.4);
+  --shadow-large: 0 8px 16px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-focus: 0 0 0 3px rgba(202, 189, 255, 0.3);
 }
 
 /* Global reset and base styles */
-* {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -116,6 +118,7 @@ html, body {
   height: 100%;
   width: 100%;
   font-size: 16px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -125,7 +128,10 @@ body {
   background-color: var(--color-background-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+  line-height: 1.5;
 }
 
 #root {
@@ -135,47 +141,86 @@ body {
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: var(--font-weight-semibold);
-  line-height: 1.2;
-  margin-bottom: 0.5em;
+  line-height: 1.15;
+  margin-bottom: 0.75em;
+  letter-spacing: -0.015em;
+  color: var(--color-text-primary);
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: clamp(2rem, 5vw, 2.75rem);
 }
 
 h2 {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
 }
 
 h3 {
-  font-size: 1.75rem;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
 }
 
 h4 {
-  font-size: 1.5rem;
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
 }
 
 h5 {
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
 }
 
 h6 {
   font-size: 1rem;
+  letter-spacing: -0.01em;
 }
 
 p {
-  margin-bottom: 1rem;
-  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
 }
 
 a {
   color: var(--color-primary);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.2s var(--animation-easing-ease-out);
+  position: relative;
 }
 
 a:hover {
   color: var(--color-accent);
+}
+
+/* Lists */
+ul, ol {
+  padding-left: 1.2em;
+  margin-bottom: 1rem;
+}
+
+li {
+  margin-bottom: 0.5em;
+}
+
+/* Form elements */
+button, 
+input, 
+select, 
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+}
+
+button {
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* Focus styles */
@@ -208,4 +253,60 @@ a:hover {
   top: 0;
   left: 0;
   z-index: 9999;
+}
+
+/* Animation utility classes */
+.fade-in {
+  animation: fadeIn 0.3s var(--animation-easing-ease-out) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(128, 128, 128, 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(128, 128, 128, 0.6);
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  html, body {
+    font-size: 15px;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

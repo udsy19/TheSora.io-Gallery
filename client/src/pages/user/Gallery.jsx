@@ -44,63 +44,91 @@ const Gallery = () => {
     fetchCollections();
   }, []);
 
-  const container = {
+  // Animation variants
+  const containerVariants = {
     hidden: { opacity: 0 },
-    show: {
+    visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.05
       }
     }
   };
 
-  const item = {
-    hidden: { y: 20, opacity: 0 },
-    show: { y: 0, opacity: 1 }
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 260,
+        damping: 20
+      }
+    }
   };
 
   return (
     <GalleryContainer>
-      <GalleryHeader>
-        <h1>My Gallery</h1>
-        <p>Browse your photo collections</p>
-      </GalleryHeader>
+      <Header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
+        <h1>Collections</h1>
+        <Subheading>
+          Explore your photography collections
+        </Subheading>
+      </Header>
 
       {isLoading ? (
-        <LoadingContainer>
-          <LoadingSpinner />
-          <LoadingText>Loading your collections...</LoadingText>
-        </LoadingContainer>
+        <LoadingWrapper>
+          <LoadingIndicator>
+            <LoadingDot delay={0} />
+            <LoadingDot delay={0.1} />
+            <LoadingDot delay={0.2} />
+          </LoadingIndicator>
+        </LoadingWrapper>
       ) : (
         <>
           {collections.length === 0 ? (
             <EmptyState>
-              <EmptyMessage>You don't have any collections yet.</EmptyMessage>
+              <EmptyIcon>📷</EmptyIcon>
+              <EmptyTitle>No collections yet</EmptyTitle>
+              <EmptyText>Your photography collections will appear here.</EmptyText>
             </EmptyState>
           ) : (
-            <CollectionsGrid
-              variants={container}
+            <Grid
+              variants={containerVariants}
               initial="hidden"
-              animate="show"
+              animate="visible"
             >
               {collections.map((collection) => (
                 <CollectionCard
                   key={collection.id}
-                  variants={item}
-                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                  variants={itemVariants}
+                  whileHover={{ 
+                    y: -4,
+                    transition: { duration: 0.2, ease: "easeOut" }
+                  }}
+                  whileTap={{ 
+                    scale: 0.98,
+                    transition: { duration: 0.1, ease: "easeOut" }
+                  }}
                 >
-                  <Link to={`/gallery/collections/${collection.id}`}>
-                    <CollectionCover>
+                  <StyledLink to={`/gallery/collections/${collection.id}`}>
+                    <ImageContainer>
                       <CollectionImage src={collection.coverImage} alt={collection.name} />
-                    </CollectionCover>
-                    <CollectionDetails>
+                      <OverlayGradient />
+                      <ImageCount>{collection.imageCount}</ImageCount>
+                    </ImageContainer>
+                    <CollectionContent>
                       <CollectionName>{collection.name}</CollectionName>
-                      <CollectionInfo>{collection.imageCount} photos</CollectionInfo>
-                    </CollectionDetails>
-                  </Link>
+                    </CollectionContent>
+                  </StyledLink>
                 </CollectionCard>
               ))}
-            </CollectionsGrid>
+            </Grid>
           )}
         </>
       )}
@@ -109,130 +137,162 @@ const Gallery = () => {
 };
 
 const GalleryContainer = styled.div`
-  max-width: 1200px;
+  max-width: 1160px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem 0;
+  padding: 1.5rem;
 `;
 
-const GalleryHeader = styled.div`
-  margin-bottom: 2rem;
-  text-align: center;
+const Header = styled(motion.div)`
+  margin-bottom: 2.5rem;
   
   h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+    font-size: 2.5rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
     color: ${({ theme }) => theme.text.primary};
-  }
-  
-  p {
-    color: ${({ theme }) => theme.text.secondary};
+    margin-bottom: 0.5rem;
   }
 `;
 
-const LoadingContainer = styled.div`
+const Subheading = styled.p`
+  font-size: 1.125rem;
+  color: ${({ theme }) => theme.text.tertiary};
+  font-weight: 400;
+`;
+
+const LoadingWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  min-height: 300px;
+  align-items: center;
+  min-height: 40vh;
 `;
 
-const LoadingSpinner = styled.div`
-  width: 40px;
-  height: 40px;
-  border: 3px solid ${({ theme }) => theme.border.secondary};
-  border-top: 3px solid ${({ theme }) => theme.primary};
+const LoadingIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const LoadingDot = styled.div`
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  background-color: ${({ theme }) => theme.primary};
+  opacity: 0.6;
+  animation: pulse 1.5s infinite ease-in-out;
+  animation-delay: ${props => props.delay}s;
   
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(0.8);
+      opacity: 0.6;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 1;
+    }
   }
-`;
-
-const LoadingText = styled.p`
-  margin-top: 1rem;
-  color: ${({ theme }) => theme.text.secondary};
 `;
 
 const EmptyState = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
+  padding: 6rem 2rem;
   background-color: ${({ theme }) => theme.surface.secondary};
-  border-radius: 12px;
+  border-radius: 16px;
+  text-align: center;
 `;
 
-const EmptyMessage = styled.p`
-  color: ${({ theme }) => theme.text.secondary};
+const EmptyIcon = styled.div`
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+`;
+
+const EmptyTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: ${({ theme }) => theme.text.primary};
+`;
+
+const EmptyText = styled.p`
   font-size: 1.125rem;
+  color: ${({ theme }) => theme.text.tertiary};
+  max-width: 24rem;
 `;
 
-const CollectionsGrid = styled(motion.div)`
+const Grid = styled(motion.div)`
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1.5rem;
-  
-  @media (min-width: 640px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (min-width: 1024px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
 `;
 
 const CollectionCard = styled(motion.div)`
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   background-color: ${({ theme }) => theme.surface.primary};
   box-shadow: ${({ theme }) => theme.shadow.small};
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
-  &:hover {
-    box-shadow: ${({ theme }) => theme.shadow.medium};
-  }
-  
-  a {
-    display: block;
-    color: inherit;
-    text-decoration: none;
-  }
+  position: relative;
 `;
 
-const CollectionCover = styled.div`
+const StyledLink = styled(Link)`
+  display: block;
+  text-decoration: none;
+  color: inherit;
+`;
+
+const ImageContainer = styled.div`
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3/2;
   overflow: hidden;
+`;
+
+const ImageCount = styled.div`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  z-index: 2;
+`;
+
+const OverlayGradient = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%);
+  z-index: 1;
 `;
 
 const CollectionImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
   
   ${CollectionCard}:hover & {
     transform: scale(1.05);
   }
 `;
 
-const CollectionDetails = styled.div`
+const CollectionContent = styled.div`
   padding: 1.25rem;
 `;
 
 const CollectionName = styled.h3`
   font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
+  font-weight: 500;
   color: ${({ theme }) => theme.text.primary};
-`;
-
-const CollectionInfo = styled.p`
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.text.tertiary};
 `;
 
 export default Gallery;

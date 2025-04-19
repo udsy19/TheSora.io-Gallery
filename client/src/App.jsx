@@ -2,6 +2,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useAuth } from './context/AuthContext';
 
+// Login Page
+import Login from './pages/user/Login';
+
 // Admin Pages
 import AdminLayout from './components/layouts/AdminLayout';
 import AdminDashboard from './pages/admin/Dashboard';
@@ -24,7 +27,7 @@ const ProtectedRoute = ({ element, adminOnly }) => {
   }
   
   if (!isAuthenticated) {
-    return <Navigate to="/" />;
+    return <Navigate to="/login" />;
   }
   
   if (adminOnly && (!user || user.role !== 'admin')) {
@@ -37,18 +40,17 @@ const ProtectedRoute = ({ element, adminOnly }) => {
 function App() {
   const { isAuthenticated, user, loading } = useAuth();
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  
   return (
     <AnimatePresence mode="wait">
       <Routes>
+        {/* Login Page */}
+        <Route path="/login" element={<Login />} />
+        
         {/* Admin Routes - Protected */}
         <Route path="/admin" element={
           isAuthenticated && user?.role === 'admin' 
             ? <AdminLayout /> 
-            : <Navigate to="/" />
+            : <Navigate to="/login" />
         }>
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UserManagement />} />
@@ -60,20 +62,24 @@ function App() {
         <Route path="/gallery" element={<UserLayout />}>
           <Route index element={<UserGallery />} />
           <Route path="collections/:id" element={
-            isAuthenticated ? <CollectionView /> : <Navigate to="/" />
+            isAuthenticated ? <CollectionView /> : <Navigate to="/login" />
           } />
           <Route path="images/:id" element={
-            isAuthenticated ? <ImageView /> : <Navigate to="/" />
+            isAuthenticated ? <ImageView /> : <Navigate to="/login" />
           } />
         </Route>
         
-        {/* Public landing page - for now just redirect to appropriate place */}
+        {/* Public landing page - for now just redirect to login or appropriate place */}
         <Route path="/" element={
-          isAuthenticated 
-            ? (user?.role === 'admin' 
-                ? <Navigate to="/admin" /> 
-                : <Navigate to="/gallery" />)
-            : <Navigate to="/gallery" />
+          loading ? (
+            <div className="loading-screen">Loading...</div>
+          ) : (
+            isAuthenticated 
+              ? (user?.role === 'admin' 
+                  ? <Navigate to="/admin" /> 
+                  : <Navigate to="/gallery" />)
+              : <Navigate to="/login" />
+          )
         } />
         
         {/* Catch all */}
