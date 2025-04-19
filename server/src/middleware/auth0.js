@@ -5,7 +5,7 @@ const config = require('../config/config');
 
 // Initialize a JWKS client
 const client = jwksClient({
-  jwksUri: `https://${config.AUTH0_DOMAIN}/.well-known/jwks.json`,
+  jwksUri: `https://dev-g8taohq4go3564mr.us.auth0.com/.well-known/jwks.json`,
   requestHeaders: {}, // Optional
   timeout: 30000 // 30 sec timeout
 });
@@ -58,7 +58,7 @@ exports.verifyAuth0Token = async (req, res, next) => {
     // Verify token
     const verifiedToken = jwt.verify(token, signingKey, {
       audience: config.AUTH0_AUDIENCE,
-      issuer: `https://${config.AUTH0_DOMAIN}/`,
+      issuer: `https://dev-g8taohq4go3564mr.us.auth0.com/`,
       algorithms: ['RS256']
     });
     

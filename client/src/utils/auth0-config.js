@@ -1,7 +1,7 @@
 // Auth0 configuration
 export const auth0Config = {
-  // IMPORTANT: Verify this domain in your Auth0 dashboard
-  domain: 'dev-dzrqcmxpzqhmf4kj.us.auth0.com', 
+  // Correct Auth0 domain
+  domain: 'dev-g8taohq4go3564mr.us.auth0.com', 
   clientId: 'kgJRolVfmzoeP7ICusKfqZK1ujZ6gkR8', 
   authorizationParams: {
     redirect_uri: window.location.origin,
