@@ -324,7 +324,8 @@ const CollectionManagement = () => {
     // This would make an API call to share the collection
     const updatedCollection = {
       ...activeCollection,
-      sharedWith: [...activeCollection.sharedWith, ...selectedUsers]
+      sharedWith: [...activeCollection.sharedWith, ...selectedUsers],
+      isShared: true // Mark the collection as shared
     };
     
     setActiveCollection(updatedCollection);
@@ -338,7 +339,25 @@ const CollectionManagement = () => {
       )
     );
     
-    toast.success(`Collection shared with ${selectedUsers.length} users`);
+    // Track individual shares for analytics
+    const selectedUserNames = users
+      .filter(user => selectedUsers.includes(user.id))
+      .map(user => user.username);
+      
+    // This would normally be an API call to track shares
+    console.log(`Collection "${activeCollection.name}" shared with users:`, selectedUserNames);
+    
+    // Show successful share notification with detailed message
+    if (selectedUsers.length === 1) {
+      const userName = users.find(u => u.id === selectedUsers[0])?.username;
+      toast.success(`Collection "${activeCollection.name}" shared with ${userName}`);
+    } else {
+      toast.success(`Collection "${activeCollection.name}" shared with ${selectedUsers.length} users`);
+    }
+    
+    // Send email notifications (would be handled server-side)
+    console.log('Sending share notification emails to users:', selectedUserNames);
+    
     setIsSharingCollection(false);
     setSelectedUsers([]);
   };
@@ -652,6 +671,7 @@ const CollectionManagement = () => {
                     <CollectionCard
                       key={collection.id}
                       onContextMenu={(e) => handleCollectionContextMenu(e, collection)}
+                      isShared={collection.sharedWith && collection.sharedWith.length > 0}
                     >
                       <CollectionCheckboxWrapper>
                         <Checkbox
@@ -661,6 +681,16 @@ const CollectionManagement = () => {
                         />
                       </CollectionCheckboxWrapper>
                       
+                      {collection.sharedWith && collection.sharedWith.length > 0 && (
+                        <SharedIndicator title={`Shared with ${collection.sharedWith.length} users`}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 12V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M16 6L12 2L8 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M12 2V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </SharedIndicator>
+                      )}
+                      
                       <CollectionContent onClick={() => handleViewCollection(collection)}>
                         <CollectionHeader>
                           <CollectionName>{collection.name}</CollectionName>
@@ -668,6 +698,11 @@ const CollectionManagement = () => {
                             <StatusBadge isPublic={collection.isPublic}>
                               {collection.isPublic ? 'Public' : 'Private'}
                             </StatusBadge>
+                            {collection.sharedWith && collection.sharedWith.length > 0 && (
+                              <SharedBadge>
+                                Shared
+                              </SharedBadge>
+                            )}
                           </CollectionStatus>
                         </CollectionHeader>
                         
@@ -1260,11 +1295,44 @@ const CollectionCard = styled.div`
   overflow: hidden;
   position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: ${props => props.isShared ? '3px solid var(--color-primary)' : 'none'};
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-medium);
   }
+`;
+
+const SharedIndicator = styled.div`
+  position: absolute;
+  top: 3rem;
+  right: 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: white;
+  }
+`;
+
+const SharedBadge = styled.div`
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+  background-color: rgba(255, 154, 139, 0.1);
+  color: var(--color-primary);
 `;
 
 const CollectionCheckboxWrapper = styled.div`

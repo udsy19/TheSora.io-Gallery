@@ -159,7 +159,7 @@ const UserManagement = () => {
       email: newUser.email,
       firstName: newUser.firstName,
       lastName: newUser.lastName,
-      role: newUser.role,
+      role: newUser.role, // This can be 'admin' or 'user'
       lastLogin: null,
       collections: 0,
       status: 'active',
@@ -167,9 +167,21 @@ const UserManagement = () => {
     };
     
     setUsers(prev => [createdUser, ...prev]);
-    toast.success(`User created successfully with password: ${password}`);
+    
+    const successMessage = newUser.role === 'admin' 
+      ? `Admin user created successfully with password: ${password}` 
+      : `User created successfully with password: ${password}`;
+    
+    toast.success(successMessage);
     setNewUser({ username: '', email: '', firstName: '', lastName: '', role: 'user' });
     setIsCreatingUser(false);
+    
+    // If this is an admin user, you might want to log it or notify
+    if (newUser.role === 'admin') {
+      console.log('New admin user created:', createdUser.username);
+      // Here you might add additional API calls or logic specific to admin users
+      // For example, granting additional permissions or sending notifications
+    }
   };
   
   const handleBulkCreate = () => {
