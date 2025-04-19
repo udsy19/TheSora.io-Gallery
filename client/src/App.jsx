@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useAuth } from './context/AuthContext';
+import { StorageProvider } from './context/StorageContext';
 
 // Login Page
 import Login from './pages/user/Login';
